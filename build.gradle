@@ -1,0 +1,60 @@
+plugins {
+    id 'org.springframework.boot' version '2.2.7.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'org.liquibase.gradle' version '2.0.3'
+    id 'java'
+}
+
+group = 'de.javamark'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+
+    // liquibase
+    implementation 'org.liquibase:liquibase-core'
+    liquibaseRuntime 'org.liquibase.ext:liquibase-hibernate5:3.8'
+    liquibaseRuntime sourceSets.main.runtimeClasspath
+    liquibaseRuntime sourceSets.main.output
+    // liquibase
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.postgresql:postgresql'
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}
+
+// liquibase
+def props = new Properties()
+file("src/main/resources/liquibase.properties").withInputStream { props.load(it) }
+diff.dependsOn assemble
+diffChangeLog.dependsOn assemble
+
+liquibase {
+    activities {
+        main {
+            changeLogFile props.getProperty("liquibase.changelog.main")
+            referenceUrl props.getProperty("liquibase.changelog.referenceUrl")
+            url props.getProperty("datasource.url")
+            username props.getProperty("datasource.username")
+            password props.getProperty("datasource.password")
+            driver props.getProperty("datasource.driver-class-name")
+            referenceDriver "liquibase.ext.hibernate.database.connection.HibernateDriver"
+        }
+    }
+}
+// liquibase
+
+
+test {
+    useJUnitPlatform()
+}

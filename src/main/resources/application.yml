@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/rainbow_database
+    username: unicorn_user
+    password: magical_password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate: jdbc.lob.non_contextual_creation=true
+    show-sql: true
+    generate-ddl: false
+    hibernate:
+      ddl-auto: create
+  liquibase:
+    enabled: true
